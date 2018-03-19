@@ -1,5 +1,7 @@
 package com.example.logger;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.os.Environment;
 import android.util.Log;
 
@@ -16,11 +18,18 @@ import java.util.Locale;
 
 public class Logger {
 
-    private static File storage = Environment.getExternalStorageDirectory();
+    private static File mStorage = Environment.getExternalStorageDirectory();
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
     private static SimpleDateFormat timestampFormat = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.ENGLISH);
+    private static Context mContext;
 
     public static boolean loggingEnabled = true;
+
+
+    public static void init (Context context, File storage){
+        mStorage = storage;
+        mContext = context;
+    }
 
     public static void writeToLogFile(String log) {
         if(loggingEnabled ) {
@@ -29,7 +38,7 @@ public class Logger {
                 String date = dateFormat.format(new Date());
                 String timestamp = timestampFormat.format(new Date());
 
-                File logFile = new File(storage, date + ".txt");
+                File logFile = new File(mStorage, getApplicationName(mContext)+ date + ".txt");
                 StringBuilder fileContent = new StringBuilder();
 
                 if (logFile.exists()) {
@@ -44,7 +53,6 @@ public class Logger {
 
                     br.close();
                     fr.close();
-
                 }
 
                 FileOutputStream fileOutputStream = new FileOutputStream(logFile);
@@ -55,14 +63,14 @@ public class Logger {
 
                 outputStreamWriter.close();
             } catch (IOException e) {
-                Log.e("MAPilot", e.getMessage());
+                Log.e("LoggerLib", e.getMessage());
             }
         }
     }
 
     public static String readLogToday() {
         String today = dateFormat.format(new Date());
-        File logFileToday = new File(storage,today + ".txt");
+        File logFileToday = new File(mStorage,getApplicationName(mContext) + today + ".txt");
 
         return readLogFile(logFileToday);
     }
@@ -87,11 +95,17 @@ public class Logger {
                 bufferedReader.close();
                 fileReader.close();
             } catch (IOException e) {
-                Log.e("MAPilot", e.getMessage());
+                Log.e("LoggerLib", e.getMessage());
             }
         }
 
         return res;
+    }
+
+    private static String getApplicationName(Context context) {
+        ApplicationInfo applicationInfo = context.getApplicationInfo();
+        int stringId = applicationInfo.labelRes;
+        return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
     }
 
     public static void openLogfile() throws FileNotFoundException {
