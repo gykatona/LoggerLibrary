@@ -18,19 +18,18 @@ import java.util.Locale;
 
 public class LogToFile {
 
-    private static File mStorage = Environment.getExternalStorageDirectory();
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
     private static SimpleDateFormat timestampFormat = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.ENGLISH);
-    private static Context mContext;
+    private static Context baseContext;
+    private static String folderMain;
 
     public static boolean loggingEnabled = true;
 
 
     public static void init (Context context, File storage){
-        mStorage = storage;
-        mContext = context;
+        baseContext = context;
 
-        String folderMain = getApplicationName(context);
+        folderMain = getApplicationName(context)+"Logs";
         File f = new File(storage, folderMain);
         if (!f.exists()) {
             f.mkdirs();
@@ -44,7 +43,7 @@ public class LogToFile {
                 String date = dateFormat.format(new Date());
                 String timestamp = timestampFormat.format(new Date());
 
-                File logFile = new File(mStorage, getApplicationName(mContext)+ date + ".txt");
+                File logFile = new File(folderMain, getApplicationName(baseContext)+ date + ".txt");
                 StringBuilder fileContent = new StringBuilder();
 
                 if (logFile.exists()) {
@@ -76,7 +75,7 @@ public class LogToFile {
 
     public static String readLogToday() {
         String today = dateFormat.format(new Date());
-        File logFileToday = new File(mStorage,getApplicationName(mContext) + today + ".txt");
+        File logFileToday = new File(folderMain,getApplicationName(baseContext) + today + ".txt");
 
         return readLogFile(logFileToday);
     }
