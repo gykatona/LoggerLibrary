@@ -29,6 +29,12 @@ public class LogToFile {
     public static void init (Context context, File storage){
         mStorage = storage;
         mContext = context;
+
+        String folderMain = getApplicationName(context);
+        File f = new File(storage, folderMain);
+        if (!f.exists()) {
+            f.mkdirs();
+        }
     }
 
     public static void writeToLogFile(String log) {
